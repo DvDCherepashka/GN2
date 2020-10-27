@@ -15,7 +15,7 @@ start = 1
 OUTSIZE_BG = (0, -100)
 
 pygame.init()
-pygame.display.set_caption('♂Full master♂')
+pygame.display.set_caption('♂Dungeon master♂')
 pygame.mouse.set_visible(False)
 screen = pygame.display.set_mode((W, H))
 
@@ -44,7 +44,7 @@ def dialogs(text, pos, owl_pos, owl_text):
     screen.blit(dialog, pos)
     screen.blit(font2.render(text, True, BLACK), (pos[0] + 5, pos[1] + 5))
     screen.blit(dialog, owl_pos)
-    screen.blit(font2.render(owl_text, True, BLACK), (dialog_owl_pos[0] + 5, dialog_owl_pos[1] + 5))
+    screen.blit(font2.render(owl_text, True, BLACK), (owl_pos[0] + 5, owl_pos[1] + 5))
     pygame.display.update()
     pygame.time.wait(2000)
 
@@ -57,6 +57,34 @@ while run:
         elif e.type == pygame.KEYDOWN:
             if e.key == pygame.K_ESCAPE:
                 run = False
+            elif e.unicode.isdecimal() and block == 0:
+                numeral += e.unicode
+            elif e.key == pygame.K_BACKSPACE:
+                numeral = numeral[:-1]
+            elif e.key == pygame.K_RETURN and numeral:
+                if int(numeral) > 100:
+                    dialogs('', OUTSIZE_BG, dialog_owl_pos, 'Вы ошиблись')
+                elif int(numeral) > num:
+                    dialogs('', OUTSIZE_BG, dialog_owl_pos, 'число меньше')
+                elif int(numeral) < num:
+                    dialogs('', OUTSIZE_BG, dialog_owl_pos, 'число больше')
+                if move == 1:
+                    if int(numeral) == num:
+                        dialogs(f'Это число {numeral}', dialog_cat_pos,
+                                dialog_owl_pos, 'кот ты выиграл')
+                        block = 1
+                    else:
+                        dialogs(f'Дог твой ход', dialog_cat_pos, dialog_owl_pos, 'продолжаем')
+                elif move == 2:
+                    if int(numeral) == num:
+                        dialogs(f'Это число {numeral}', dialog_dog_pos, dialog_owl_pos, 'Дог ты выиграл')
+                        block = 1
+                    else:
+                        dialogs('кот твой ход', dialog_dog_pos, dialog_owl_pos, 'продолжаем')
+                numeral = ''
+                move += 1
+                if move > 2:
+                    move = 1
 
     if block == 0:
         screen.blit(bg, bg_rect)
@@ -65,11 +93,18 @@ while run:
         screen.blit(font_box, font_box_rect)
         screen.blit(cat, cat_rect)
         font_box.fill(SILVER)
+        font_box.blit(font.render(numeral, True, BLACK), (10, 0))
     pygame.display.update()
 
     if start == 1:
-        dialogs('', OUTSIZE_BG, dialog_owl_pos, '♂Full master♂ загадал число')
-        dialogs('', OUTSIZE_BG, dialog_owl_pos, 'от 0 до 100')
-        dialogs('', OUTSIZE_BG, dialog_owl_pos, '♂Full master♂ просит NIGGERS его отгадать')
-        dialogs('кот твой ход', dialog_dog_pos, OUTSIZE_BG '')
+        dialogs('', OUTSIZE_BG,
+                dialog_owl_pos, '♂Dungeon master♂ загадал число')
+        dialogs('', OUTSIZE_BG,
+                dialog_owl_pos, 'от 0 до 100')
+        dialogs('', OUTSIZE_BG,
+                dialog_owl_pos, '♂Dungeon master♂ просит его отгадать')
+        dialogs('', OUTSIZE_BG, OUTSIZE_BG, '')
         start = 0
+    elif start == 0:
+        dialogs('кот твой ход', dialog_dog_pos, OUTSIZE_BG, '')
+        start = None
